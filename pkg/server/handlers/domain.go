@@ -19,13 +19,13 @@ type DomainHandler struct {
 func (h DomainHandler) Register(g *gin.RouterGroup) {
 	g.GET("", h.List())
 	g.POST("", h.Add())
-	g.GET(":domain_id", h.Preload(), h.Show())
-	g.DELETE(":domain_id", h.Preload(), h.Delete())
+	g.GET(":domainID", h.Preload(), h.Show())
+	g.DELETE(":domainID", h.Preload(), h.Delete())
 }
 
 func (DomainHandler) Preload() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		domainID := c.Param("domain_id")
+		domainID := c.Param("domainID")
 		db := database.DB
 		var domain models.Domain
 		if v := db.Where("id = ?", domainID).First(&domain); gorm.IsRecordNotFoundError(v.Error) {
@@ -35,7 +35,7 @@ func (DomainHandler) Preload() gin.HandlerFunc {
 		} else if v.Error != nil {
 			panic(v.Error)
 		}
-		c.Set("request_domain", &domain)
+		c.Set("requestDomain", &domain)
 		c.Next()
 	}
 }
@@ -50,12 +50,16 @@ func (DomainHandler) List() gin.HandlerFunc {
 			return
 		}
 		db := database.DB
-		var domains []models.Domain
-		if v := db.Offset(offset).Limit(limit).Find(&domains); v.Error != nil {
+		var (
+			domains []models.Domain
+			count   uint
+		)
+		if v := db.Model(&models.Domain{}).Count(&count).Offset(offset).Limit(limit).Find(&domains); v.Error != nil {
 			panic(v.Error)
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"status":  status.OK,
+			"total":   count,
 			"domains": domains,
 		})
 	}
@@ -64,7 +68,7 @@ func (DomainHandler) List() gin.HandlerFunc {
 func (DomainHandler) Add() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		type req struct {
-			Domains []string
+			Domains []string `json:"domains"`
 		}
 		var (
 			in  req
@@ -125,7 +129,7 @@ func (DomainHandler) Add() gin.HandlerFunc {
 
 func (DomainHandler) Show() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		domain := c.MustGet("request_domain").(*models.Domain)
+		domain := c.MustGet("requestDomain").(*models.Domain)
 		c.JSON(http.StatusOK, gin.H{
 			"status": status.OK,
 			"domain": domain,
@@ -135,14 +139,14 @@ func (DomainHandler) Show() gin.HandlerFunc {
 
 func (DomainHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		domain := c.MustGet("request_domain").(*models.Domain)
+		domain := c.MustGet("requestDomain").(*models.Domain)
 		db := database.DB
 		if v := db.Delete(domain); v.Error != nil {
 			panic(v.Error)
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"status":            status.OK,
-			"deleted_domain_id": domain.ID,
+			"status":          status.OK,
+			"deletedDomainID": domain.ID,
 		})
 	}
 }

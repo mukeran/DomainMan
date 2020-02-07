@@ -7,8 +7,8 @@ const (
 )
 
 type Config struct {
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Key       string `gorm:"primary_key"`
-	Value     string
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	Key       string    `gorm:"primary_key" json:"key"`
+	Value     string    `json:"value"`
 }

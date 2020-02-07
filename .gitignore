@@ -1,3 +1,10 @@
+# executable
 /build/
 /DomainMan.exe
+/DomainMan
+
+# database
 /db.sqlite3
+
+# ide
+.idea

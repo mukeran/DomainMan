@@ -18,19 +18,19 @@ type WhoisHandler struct {
 func (h WhoisHandler) Register(g *gin.RouterGroup) {
 	g.GET("", h.List())
 	g.POST("", h.Query())
-	g.GET(":whois_id", h.Preload(), h.Show())
-	g.DELETE(":whois_id", h.Preload(), h.Delete())
+	g.GET(":whoisID", h.Preload(), h.Show())
+	g.DELETE(":whoisID", h.Preload(), h.Delete())
 }
 
 func (WhoisHandler) Preload() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		whoisID := c.Param("whois_id")
+		whoisID := c.Param("whoisID")
 		db := database.DB
 		var w models.Whois
 		if v := db.Where("id = ?", whoisID).First(&w); v.Error != nil {
 			panic(v.Error)
 		}
-		c.Set("request_whois", &w)
+		c.Set("requestWhois", &w)
 		c.Next()
 	}
 }
@@ -63,8 +63,8 @@ func (WhoisHandler) List() gin.HandlerFunc {
 func (WhoisHandler) Query() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		type req struct {
-			Domain      string `binding:"required"`
-			ForceUpdate bool   `json:"force_update,omitempty"`
+			Domain      string `binding:"required" json:"domain"`
+			ForceUpdate bool   `json:"forceUpdate,omitempty"`
 		}
 		var (
 			w   *models.Whois
@@ -115,7 +115,7 @@ func (WhoisHandler) Query() gin.HandlerFunc {
 
 func (WhoisHandler) Show() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		w := c.MustGet("request_whois").(*models.Whois)
+		w := c.MustGet("requestWhois").(*models.Whois)
 		c.JSON(http.StatusOK, gin.H{
 			"status": status.OK,
 			"whois":  w,
@@ -125,14 +125,14 @@ func (WhoisHandler) Show() gin.HandlerFunc {
 
 func (WhoisHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		w := c.MustGet("request_whois").(*models.Whois)
+		w := c.MustGet("requestWhois").(*models.Whois)
 		db := database.DB
 		if v := db.Delete(w); v.Error != nil {
 			panic(v.Error)
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"status":           status.OK,
-			"deleted_whois_id": w.ID,
+			"status":         status.OK,
+			"deletedWhoisID": w.ID,
 		})
 	}
 }

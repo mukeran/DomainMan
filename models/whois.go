@@ -10,23 +10,23 @@ const (
 )
 
 type Whois struct {
-	ID               uint `gorm:"primary_key"`
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
-	DomainName       string
-	Raw              string
-	Registrant       string
-	RegistrantEmail  string
-	Registrar        string
-	RegistrarIANAID  uint
-	UpdatedDate      time.Time
-	RegistrationDate time.Time
-	ExpirationDate   time.Time
-	Status           uint
-	NameServer       []string `gorm:"-"`
-	NameServer_      []byte   `gorm:"column:name_server" json:"-"`
-	DNSSEC           string   `gorm:"column:dnssec"`
-	DSData           string
+	ID               uint      `gorm:"primary_key" json:"id"`
+	CreatedAt        time.Time `json:"createdAt"`
+	UpdatedAt        time.Time `json:"updatedAt"`
+	DomainName       string    `json:"domainName"`
+	Raw              string    `json:"raw"`
+	Registrant       string    `json:"registrant"`
+	RegistrantEmail  string    `json:"registrantEmail"`
+	Registrar        string    `json:"registrar"`
+	RegistrarIANAID  uint      `json:"registrarIanaID"`
+	UpdatedDate      time.Time `json:"updatedDate"`
+	RegistrationDate time.Time `json:"registrationDate"`
+	ExpirationDate   time.Time `json:"expirationDate"`
+	Status           uint      `json:"status"`
+	NameServer       []string  `gorm:"-" json:"nameServer"`
+	NameServer_      []byte    `gorm:"column:name_server" json:"-"`
+	DNSSEC           string    `gorm:"column:dnssec" json:"dnssec"`
+	DSData           string    `json:"dsData"`
 }
 
 func (w *Whois) BeforeSave() (err error) {

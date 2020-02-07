@@ -16,6 +16,7 @@ var (
 func Init() {
 	GIN = gin.New()
 	GIN.Use(gin.Logger())
+	GIN.Use(middlewares.CORS())
 	GIN.Use(middlewares.Recovery())
 	GIN.Use(middlewares.AccessControl())
 	GIN.NoMethod(middlewares.Handler404())

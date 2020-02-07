@@ -17,14 +17,14 @@ type SuffixHandler struct {
 func (h SuffixHandler) Register(g *gin.RouterGroup) {
 	g.GET("", h.List())
 	g.POST("", h.Add())
-	g.GET(":suffix_id", h.Preload(), h.Show())
-	g.PATCH(":suffix_id", h.Preload(), h.Modify())
-	g.DELETE(":suffix_id", h.Preload(), h.Delete())
+	g.GET(":suffixID", h.Preload(), h.Show())
+	g.PATCH(":suffixID", h.Preload(), h.Modify())
+	g.DELETE(":suffixID", h.Preload(), h.Delete())
 }
 
 func (SuffixHandler) Preload() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		suffixID := c.Param("suffix_id")
+		suffixID := c.Param("suffixID")
 		db := database.DB
 		var suffix models.Suffix
 		if v := db.Where("id = ?", suffixID).First(&suffix); gorm.IsRecordNotFoundError(v.Error) {
@@ -34,7 +34,7 @@ func (SuffixHandler) Preload() gin.HandlerFunc {
 		} else if v.Error != nil {
 			panic(v.Error)
 		}
-		c.Set("request_suffix", &suffix)
+		c.Set("requestSuffix", &suffix)
 		c.Next()
 	}
 }
@@ -49,13 +49,17 @@ func (SuffixHandler) List() gin.HandlerFunc {
 			return
 		}
 		query := c.DefaultQuery("query", "")
-		var suffixes []models.Suffix
+		var (
+			suffixes []models.Suffix
+			count    uint
+		)
 		db := database.DB
-		if v := db.Where("name like ?", "%"+query+"%").Offset(offset).Limit(limit).Find(&suffixes); v.Error != nil {
+		if v := db.Model(&models.Suffix{}).Where("name like ?", "%"+query+"%").Count(&count).Offset(offset).Limit(limit).Find(&suffixes); v.Error != nil {
 			panic(v.Error)
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"status":   status.OK,
+			"total":    count,
 			"suffixes": suffixes,
 		})
 	}
@@ -64,10 +68,10 @@ func (SuffixHandler) List() gin.HandlerFunc {
 func (SuffixHandler) Add() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		type req struct {
-			Name        string `binding:"alphanum|containsany=.-"`
-			Memo        string
-			Description string
-			WhoisServer string `json:"whois_server" binding:"uri"`
+			Name        string `binding:"alphanum|containsany=.-" json:"name"`
+			Memo        string `json:"memo"`
+			Description string `json:"description"`
+			WhoisServer string `json:"whoisServer" binding:"uri"`
 		}
 		var (
 			in  req
@@ -99,7 +103,7 @@ func (SuffixHandler) Add() gin.HandlerFunc {
 
 func (SuffixHandler) Show() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		suffix := c.MustGet("request_suffix").(*models.Suffix)
+		suffix := c.MustGet("requestSuffix").(*models.Suffix)
 		c.JSON(http.StatusOK, gin.H{
 			"status": status.OK,
 			"suffix": suffix,
@@ -110,9 +114,9 @@ func (SuffixHandler) Show() gin.HandlerFunc {
 func (SuffixHandler) Modify() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		type req struct {
-			Memo        *string
-			Description *string
-			WhoisServer *string `json:"whois_server" binding:"uri"`
+			Memo        *string `json:"memo"`
+			Description *string `json:"description"`
+			WhoisServer *string `json:"whoisServer" binding:"uri"`
 		}
 		var (
 			in  req
@@ -125,7 +129,7 @@ func (SuffixHandler) Modify() gin.HandlerFunc {
 			})
 			return
 		}
-		suffix := c.MustGet("request_suffix").(*models.Suffix)
+		suffix := c.MustGet("requestSuffix").(*models.Suffix)
 		if in.Memo != nil {
 			suffix.Memo = *in.Memo
 		}
@@ -148,14 +152,14 @@ func (SuffixHandler) Modify() gin.HandlerFunc {
 
 func (SuffixHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		suffix := c.MustGet("request_suffix").(*models.Suffix)
+		suffix := c.MustGet("requestSuffix").(*models.Suffix)
 		db := database.DB
 		if v := db.Delete(suffix); v.Error != nil {
 			panic(v.Error)
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"status":            status.OK,
-			"deleted_suffix_id": suffix.ID,
+			"status":          status.OK,
+			"deletedSuffixID": suffix.ID,
 		})
 	}
 }

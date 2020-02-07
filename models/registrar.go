@@ -18,14 +18,14 @@ var (
 )
 
 type Registrar struct {
-	ID          uint `gorm:"primary_key"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	Name        string
-	IANAID      uint `gorm:"column:iana_id"`
-	Status      uint
-	Website     string
-	RDAPBaseURL string
-	IsFromIANA  bool
-	FetchedAt   time.Time
+	ID          uint      `gorm:"primary_key" json:"id"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+	Name        string    `json:"name"`
+	IANAID      uint      `gorm:"column:iana_id" json:"ianaID"`
+	Status      uint      `json:"status"`
+	Website     string    `json:"website"`
+	RDAPBaseURL string    `json:"rdapBaseUrl"`
+	IsFromIANA  bool      `json:"isFromIana"`
+	FetchedAt   time.Time `json:"fetchedAt"`
 }

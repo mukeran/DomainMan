@@ -1,0 +1,13 @@
+GET http://localhost:9991/domain?offset=10&limit=10
+Access-Token: KkbMZK0BtOdG3vg9uhYcnqVb1MMyHgAN
+
+###
+POST http://localhost:9991/domain
+Access-Token: KkbMZK0BtOdG3vg9uhYcnqVb1MMyHgAN
+Content-Type: application/json
+
+{
+  "domains": ["mukeran.com"]
+}
+
+###

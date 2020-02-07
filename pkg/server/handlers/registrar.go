@@ -29,7 +29,7 @@ func (h RegistrarHandler) Register(g *gin.RouterGroup) {
 
 func (RegistrarHandler) Preload() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		registrarID := c.Param("registrar_id")
+		registrarID := c.Param("registrarID")
 		db := database.DB
 		var registrar models.Registrar
 		if v := db.Where("id = ?", registrarID).First(&registrar); gorm.IsRecordNotFoundError(v.Error) {

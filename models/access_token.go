@@ -7,13 +7,13 @@ const (
 )
 
 type AccessToken struct {
-	ID        uint `gorm:"primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Name      string
-	Token     string `json:",omitempty"`
-	IsMaster  bool
-	CanIssue  bool
+	ID        uint         `gorm:"primary_key" json:"id"`
+	CreatedAt time.Time    `json:"createdAt"`
+	UpdatedAt time.Time    `json:"updatedAt"`
+	Name      string       `json:"name"`
+	Token     string       `json:"token,omitempty"`
+	IsMaster  bool         `json:"isMaster"`
+	CanIssue  bool         `json:"canIssue"`
 	Issuer    *AccessToken `gorm:"foreignkey:IssuerID" json:"-"`
-	IssuerID  uint
+	IssuerID  uint         `json:"issuerID"`
 }

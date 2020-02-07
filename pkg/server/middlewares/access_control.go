@@ -25,7 +25,7 @@ func AccessControl() gin.HandlerFunc {
 		if v := db.Commit(); v.Error != nil {
 			panic(v.Error)
 		}
-		c.Set("access_token", &accessToken)
+		c.Set("accessToken", &accessToken)
 		c.Next()
 	}
 }

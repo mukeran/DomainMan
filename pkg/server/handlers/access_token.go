@@ -21,13 +21,13 @@ type AccessTokenHandler struct {
 func (h AccessTokenHandler) Register(g *gin.RouterGroup) {
 	g.GET("", h.List())
 	g.POST("", h.New())
-	g.PATCH(":access_token_id", h.Preload(), h.Modify())
-	g.DELETE(":access_token_id", h.Preload(), h.Delete())
+	g.PATCH(":accessTokenID", h.Preload(), h.Modify())
+	g.DELETE(":accessTokenID", h.Preload(), h.Delete())
 }
 
 func (AccessTokenHandler) Preload() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		accessTokenID := c.Param("access_token_id")
+		accessTokenID := c.Param("accessTokenID")
 		db := database.DB
 		var accessToken models.AccessToken
 		if v := db.Where("id = ?", accessTokenID).First(&accessToken); gorm.IsRecordNotFoundError(v.Error) {
@@ -37,14 +37,14 @@ func (AccessTokenHandler) Preload() gin.HandlerFunc {
 		} else if v.Error != nil {
 			panic(v.Error)
 		}
-		c.Set("request_access_token", &accessToken)
+		c.Set("requestAccessToken", &accessToken)
 		c.Next()
 	}
 }
 
 func (AccessTokenHandler) List() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		accessToken := c.MustGet("access_token").(*models.AccessToken)
+		accessToken := c.MustGet("accessToken").(*models.AccessToken)
 		offset, limit, err1 := methods.GetPageInfo(c)
 		issuer, err2 := methods.GetUintQuery(c, "issuer", uint64(accessToken.ID))
 		if err1 != nil || err2 != nil {
@@ -77,7 +77,7 @@ func (AccessTokenHandler) List() gin.HandlerFunc {
 
 func (AccessTokenHandler) New() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		accessToken := c.MustGet("access_token").(*models.AccessToken)
+		accessToken := c.MustGet("accessToken").(*models.AccessToken)
 		if !accessToken.CanIssue {
 			c.JSON(http.StatusForbidden, gin.H{
 				"status": status.AccessDenied,
@@ -86,7 +86,7 @@ func (AccessTokenHandler) New() gin.HandlerFunc {
 		}
 		type req struct {
 			Name     string `json:"name"`
-			CanIssue bool   `json:"can_issue"`
+			CanIssue bool   `json:"canIssue"`
 		}
 		var (
 			in  req
@@ -118,8 +118,8 @@ func (AccessTokenHandler) New() gin.HandlerFunc {
 
 func (AccessTokenHandler) Modify() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		accessToken := c.MustGet("access_token").(*models.AccessToken)
-		requestAccessToken := c.MustGet("request_access_token").(*models.AccessToken)
+		accessToken := c.MustGet("accessToken").(*models.AccessToken)
+		requestAccessToken := c.MustGet("requestAccessToken").(*models.AccessToken)
 		if !(accessToken.IsMaster || (accessToken.CanIssue && accessToken.ID == requestAccessToken.IssuerID)) {
 			c.JSON(http.StatusForbidden, gin.H{
 				"status": status.AccessDenied,
@@ -127,9 +127,9 @@ func (AccessTokenHandler) Modify() gin.HandlerFunc {
 			return
 		}
 		type req struct {
-			Name     *string `json:",omitempty"`
-			IsMaster *bool   `json:"is_master,omitempty"`
-			CanIssue *bool   `json:"can_issue,omitempty"`
+			Name     *string `json:"name,omitempty"`
+			IsMaster *bool   `json:"isMaster,omitempty"`
+			CanIssue *bool   `json:"canIssue,omitempty"`
 		}
 		var (
 			in  req
@@ -168,8 +168,8 @@ func (AccessTokenHandler) Modify() gin.HandlerFunc {
 
 func (AccessTokenHandler) Delete() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		accessToken := c.MustGet("access_token").(*models.AccessToken)
-		requestAccessToken := c.MustGet("request_access_token").(*models.AccessToken)
+		accessToken := c.MustGet("accessToken").(*models.AccessToken)
+		requestAccessToken := c.MustGet("requestAccessToken").(*models.AccessToken)
 		if !(accessToken.IsMaster || (accessToken.CanIssue && accessToken.ID == requestAccessToken.IssuerID)) {
 			c.JSON(http.StatusForbidden, gin.H{
 				"status": status.AccessDenied,
@@ -181,8 +181,8 @@ func (AccessTokenHandler) Delete() gin.HandlerFunc {
 			panic(v.Error)
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"status":                  status.OK,
-			"deleted_access_token_id": requestAccessToken.ID,
+			"status":               status.OK,
+			"deletedAccessTokenID": requestAccessToken.ID,
 		})
 	}
 }
