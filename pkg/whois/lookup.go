@@ -1,11 +1,11 @@
 package whois
 
 import (
-	"DomainMan/models"
 	"DomainMan/pkg/database"
 	"DomainMan/pkg/errors"
+	"DomainMan/pkg/models"
 	"fmt"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 	"io"
 	"net"
 	"strings"
@@ -20,7 +20,7 @@ const (
 func LookupWithCache(domain string) (*models.Whois, error) {
 	db := database.DB
 	var cachedWhois models.Whois
-	if v := db.Where("domain_name = ?", domain).Order("created_at desc").First(&cachedWhois); gorm.IsRecordNotFoundError(v.Error) {
+	if v := db.Where("domain_name = ?", domain).Order("created_at desc").First(&cachedWhois); errors.Is(v.Error, gorm.ErrRecordNotFound) {
 		return Lookup(domain)
 	} else if v.Error != nil {
 		panic(v.Error)
@@ -32,31 +32,50 @@ func LookupWithCache(domain string) (*models.Whois, error) {
 }
 
 func Lookup(domain string) (*models.Whois, error) {
-	db := database.DB.Begin()
-	defer db.RollbackUnlessCommitted()
+	var (
+		mode   uint
+		server string
+	)
+	db := database.DB
 	levels := strings.Split(domain, ".")
-	var server string
-	for i := 0; i < len(levels); i++ {
-		name := strings.Join(levels[i:], ".")
+	if len(levels) >= 3 {
+		for i := 0; i < len(levels); i++ {
+			name := strings.Join(levels[i:], ".")
+			var suffix models.Suffix
+			if v := db.Where("name = ?", name).First(&suffix); errors.Is(v.Error, gorm.ErrRecordNotFound) {
+				continue
+			} else if v.Error != nil {
+				panic(v.Error)
+			}
+			mode = suffix.Mode
+			server = suffix.WhoisServer
+			break
+		}
+	} else {
 		var suffix models.Suffix
-		if v := db.Where("name = ?", name).First(&suffix); gorm.IsRecordNotFoundError(v.Error) {
-			continue
+		if v := db.Where("name = ?", levels[len(levels)-1]).First(&suffix); errors.Is(v.Error, gorm.ErrRecordNotFound) {
 		} else if v.Error != nil {
 			panic(v.Error)
+		} else {
+			mode = suffix.Mode
+			server = suffix.WhoisServer
 		}
-		server = suffix.WhoisServer
 	}
 	if server == "" {
 		return nil, errors.ErrUnsupportedSuffix
 	}
-	if v := db.Commit(); v.Error != nil {
-		panic(v.Error)
+	switch mode {
+	case models.ModeWhois:
+		return LookupWithWhoisServer(domain, server)
+	case models.ModeWeb:
+		fallthrough
+	default:
+		return nil, errors.ErrUnsupportedWhoisMode
 	}
-	return LookupWithWhoisServer(domain, server)
 }
 
 func LookupWithWhoisServer(domain string, server string) (*models.Whois, error) {
-	conn, err := net.Dial("tcp", server)
+	conn, err := net.DialTimeout("tcp", server, 5*time.Second)
 	if err != nil {
 		return nil, err
 	}

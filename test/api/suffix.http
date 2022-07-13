@@ -1,0 +1,33 @@
+GET http://localhost:9991/suffix
+Access-Token: QFblUJAAHTjxbc4veqrImyvEsi5ywQnd
+
+###
+POST http://localhost:9991/suffix
+Access-Token: WS2SJPc3WFRZh1h6T2sSX6aCFAulgNQ8
+Content-Type: application/json
+
+{
+  "name": "com",
+  "memo": "",
+  "description": "",
+  "whois_server": "whois.verisign-grs.com:43"
+}
+
+###
+GET http://localhost:9991/suffix/1
+Access-Token: QFblUJAAHTjxbc4veqrImyvEsi5ywQnd
+
+###
+PATCH http://localhost:9991/suffix/1
+Access-Token: QFblUJAAHTjxbc4veqrImyvEsi5ywQnd
+Content-Type: application/json
+
+{
+  "whois_server": "whois.verisign-grs.com:43"
+}
+
+###
+DELETE http://localhost:9991/suffix/2
+Access-Token: QFblUJAAHTjxbc4veqrImyvEsi5ywQnd
+
+###

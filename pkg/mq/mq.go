@@ -27,6 +27,7 @@ func worker(mq *MessageQueue, id uint) {
 			f()
 		case <-mq.ctx.Done():
 			log.Printf("Stopped Worker %v\n", id)
+			return
 		}
 	}
 }

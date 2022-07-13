@@ -8,3 +8,6 @@
 
 # ide
 .idea
+
+# config file
+dm-gui.toml

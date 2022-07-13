@@ -1,0 +1,14 @@
+GET http://localhost:9991/config?key=test&key=abc
+Access-Token: sQW5b2QIXjvuYkHTSRKUJGsinlOmbR01
+
+###
+POST http://localhost:9991/config
+Access-Token: sQW5b2QIXjvuYkHTSRKUJGsinlOmbR01
+Content-Type: application/json
+
+{
+  "test": "test",
+  "a": "b"
+}
+
+###

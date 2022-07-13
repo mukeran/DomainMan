@@ -1,0 +1,29 @@
+GET http://localhost:9991/access_token
+Access-Token: sQW5b2QIXjvuYkHTSRKUJGsinlOmbR01
+
+###
+POST http://localhost:9991/access_token
+Access-Token: sQW5b2QIXjvuYkHTSRKUJGsinlOmbR01
+Content-Type: application/json
+
+{
+  "name": "test",
+  "can_issue": true
+}
+
+###
+PATCH http://localhost:9991/access_token/9
+Access-Token: sQW5b2QIXjvuYkHTSRKUJGsinlOmbR01
+Content-Type: application/json
+
+{
+  "name": "testtest2",
+  "is_master": false,
+  "can_issue": true
+}
+
+###
+DELETE http://localhost:9991/access_token/9
+Access-Token: sQW5b2QIXjvuYkHTSRKUJGsinlOmbR01
+
+###

@@ -1,0 +1,8 @@
+Website = "https://blog.mkr.im/security"
+
+[Details]
+  Icon = "../../assets/icon.png"
+  Name = "DomainMan GUI"
+  ID = "im.mkr.domainman.gui"
+  Version = "1.0.0"
+  Build = 2

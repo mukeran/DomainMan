@@ -1,0 +1,8 @@
+GET http://localhost:9991/registrar?limit=1000
+Access-Token: QFblUJAAHTjxbc4veqrImyvEsi5ywQnd
+
+###
+PATCH http://localhost:9991/registrar
+Access-Token: QFblUJAAHTjxbc4veqrImyvEsi5ywQnd
+
+###

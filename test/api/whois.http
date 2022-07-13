@@ -1,0 +1,22 @@
+GET http://localhost:9991/whois
+Access-Token: WS2SJPc3WFRZh1h6T2sSX6aCFAulgNQ8
+
+###
+POST http://localhost:9991/whois
+Access-Token: WS2SJPc3WFRZh1h6T2sSX6aCFAulgNQ8
+Content-Type: application/json
+
+{
+  "domain": "mukeran.com",
+  "force_update": true
+}
+
+###
+GET http://localhost:9991/whois/1
+Access-Token: WS2SJPc3WFRZh1h6T2sSX6aCFAulgNQ8
+
+###
+DELETE http://localhost:9991/whois/1
+Access-Token: WS2SJPc3WFRZh1h6T2sSX6aCFAulgNQ8
+
+###
